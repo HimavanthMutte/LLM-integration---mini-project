@@ -65,14 +65,13 @@ The app will run on `http://localhost:3000`
 ```bash
 cd backend
 # Install dependencies
-pip install -r requirements.txt  # or npm install
+ npm install
 
 # Configure environment
-cp .env.example .env
 # Edit .env with your API keys and settings
 
 # Run the server
-python app.py  # or npm start
+npm start
 ```
 
 ## Usage
