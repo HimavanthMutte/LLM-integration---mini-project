@@ -22,8 +22,14 @@ const Home = () => {
       },
     body: JSON.stringify(requestPayload)
     });
-    const data = await response.json();
-    setAgentResponse(data.response);
+    const reader = response.body.getReader()
+    const decoder = new TextDecoder()
+    while(true){
+      const {value,done} = await reader.read();
+      if(done) break;
+      const chunk = decoder.decode(value);
+      setAgentResponse((prev) => prev + chunk);
+    }
     setSystemPrompt("");
     setUserPrompt("");
     setTemperature(0.5);
