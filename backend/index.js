@@ -1,7 +1,7 @@
+
 import express from "express"
 import dotenv from "dotenv"
 import cors from "cors"
-import {OpenAI} from "openai"
 
 dotenv.config();
 
@@ -9,10 +9,6 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-
-const openai = new OpenAI({
-    apiKey: process.env.OPEN_API_KEY
-})
 
 app.post('/request',async(req,res)=>{
     try {
@@ -23,20 +19,30 @@ app.post('/request',async(req,res)=>{
             maxTokens
         } = req.body;
 
-        const completion = await openai.chat.completions.create({
-            model: "gpt-4o",
-            messages: [
-                {"role": "system","content": systemPrompt || "You are a helpful assistant."},
-                {"role": "user","content": userPrompt}
-            ],
-            temperature: temperature || 0.5,
-            max_tokens: maxTokens || 100
+        const response = await fetch("http://127.0.0.1:1234/v1/chat/completions",{
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                model: "openai/gpt-oss-20b",
+                messages: [{
+                    role: "system",
+                    content: systemPrompt},
+                    {
+                        role: "user",
+                        content: userPrompt
+                    }
+                ],
+                temperature: temperature,
+                maxTokens: maxTokens,
+                stream: false
+            })
         })
-
-        const response = completion.choices[0].message.content;
+        const ans = await response.json();
         res.status(200).json({
             success: true,
-            response: response
+            response: ans.choices[0].message.content
         })
     }
     catch (error) {
